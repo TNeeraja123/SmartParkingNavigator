@@ -1,0 +1,263 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Parking Assistant</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f0f8ff;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    #location, #network {
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    canvas {
+      display: block;
+      margin: 20px auto;
+      border: 2px solid #2c3e50;
+      background: #ecf0f1;
+      border-radius: 8px;
+    }
+
+    #status {
+      text-align: center;
+      margin-top: 10px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Smart Parking Assistant</h1>
+  <div id="location">Detecting location...</div>
+  <div id="network">Checking network speed...</div>
+  <canvas id="parkingCanvas" width="400" height="300"></canvas>
+  <div id="status">Loading parking layout...</div>
+
+  <script>
+    // Geolocation API
+    function getLocation() {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(position => {
+          const { latitude, longitude } = position.coords;
+          document.getElementById('location').textContent =
+            `Your location: Latitude ${latitude.toFixed(4)}, Longitude ${longitude.toFixed(4)}`;
+        }, () => {
+          document.getElementById('location').textContent = 'Unable to retrieve location.';
+        });
+      } else {
+        document.getElementById('location').textContent = 'Geolocation not supported.';
+      }
+    }
+
+    // Network Information API
+    function getNetworkSpeed() {
+      if ('connection' in navigator) {
+        const speed = navigator.connection.effectiveType;
+        document.getElementById('network').textContent = `Network speed: ${speed}`;
+        return speed;
+      } else {
+        document.getElementById('network').textContent = 'Network info not available.';
+        return '4g'; // Default
+      }
+    }
+
+    // Canvas API – Draw parking layout
+    function drawParkingLayout(speed) {
+      const canvas = document.getElementById('parkingCanvas');
+      const ctx = canvas.getContext('2d');
+
+      const rows = 4;
+      const cols = 5;
+      const spotWidth = 60;
+      const spotHeight = 40;
+      const gap = 10;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = '12px Arial';
+
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const x = col * (spotWidth + gap) + gap;
+          const y = row * (spotHeight + gap) + gap;
+
+          const isAvailable = Math.random() > 0.3; // Simulate availability
+          ctx.fillStyle = isAvailable ? '#2ecc71' : '#e74c3c';
+          ctx.fillRect(x, y, spotWidth, spotHeight);
+
+          if (speed === '2g') {
+            ctx.fillStyle = '#000';
+            ctx.fillText(isAvailable ? '✓' : 'X', x + 25, y + 25);
+          } else {
+            ctx.fillStyle = '#fff';
+            ctx.fillText(isAvailable ? 'Available' : 'Taken', x + 5, y + 25);
+          }
+        }
+      }
+
+      document.getElementById('status').textContent = 'Parking layout updated.';
+    }
+
+    // Initialize
+    getLocation();
+    const speed = getNetworkSpeed();
+    drawParkingLayout(speed);
+  </script>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Parking Navigator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    #info {
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    canvas {
+      display: block;
+      margin: 20px auto;
+      border: 2px solid #2c3e50;
+      background: #ecf0f1;
+      border-radius: 8px;
+    }
+
+    #status {
+      text-align: center;
+      margin-top: 10px;
+      color: #555;
+    }
+
+    #spotDetails {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Smart Parking Navigator</h1>
+  <div id="info">Detecting location and network...</div>
+  <canvas id="parkingCanvas" width="500" height="400"></canvas>
+  <div id="status">Loading parking layout...</div>
+  <div id="spotDetails"></div>
+
+  <script>
+    const canvas = document.getElementById('parkingCanvas');
+    const ctx = canvas.getContext('2d');
+    const spotDetails = document.getElementById('spotDetails');
+
+    let selectedSpot = null;
+
+    // Simulated parking data
+    const parkingSpots = Array.from({ length: 20 }, (_, i) => ({
+      id: i + 1,
+      x: 50 + (i % 5) * 80,
+      y: 50 + Math.floor(i / 5) * 80,
+      available: Math.random() > 0.3
+    }));
+
+    // Draw parking layout
+    function drawParkingLayout(speed) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = speed === '2g' ? '12px Arial' : '14px Arial';
+
+      parkingSpots.forEach(spot => {
+        ctx.fillStyle = spot.available ? '#2ecc71' : '#e74c3c';
+        ctx.fillRect(spot.x, spot.y, 60, 40);
+
+        ctx.fillStyle = '#fff';
+        ctx.fillText(`Spot ${spot.id}`, spot.x + 5, spot.y + 25);
+      });
+
+      document.getElementById('status').textContent = 'Parking layout updated.';
+    }
+
+    // Handle canvas click
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      parkingSpots.forEach(spot => {
+        if (
+          clickX >= spot.x &&
+          clickX <= spot.x + 60 &&
+          clickY >= spot.y &&
+          clickY <= spot.y + 40
+        ) {
+          selectedSpot = spot;
+          showSpotDetails(spot);
+        }
+      });
+    });
+
+    function showSpotDetails(spot) {
+      if (spot.available) {
+        spotDetails.innerHTML = `
+          <strong>Selected Spot:</strong> ${spot.id}<br>
+          Status: Available<br>
+          <em>Route guidance: Walk straight to row ${Math.floor(spot.id / 5) + 1}, column ${(spot.id % 5) || 5}</em>
+        `;
+      } else {
+        spotDetails.innerHTML = `
+          <strong>Selected Spot:</strong> ${spot.id}<br>
+          Status: Taken<br>
+          <em>Please select another spot.</em>
+        `;
+      }
+    }
+
+    // Geolocation API
+    function getLocation() {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(position => {
+          const { latitude, longitude } = position.coords;
+          // document.getElementById('info').textContent =
+          //   `Location: Lat ${latitude.toFixed(4)}, Lon ${longitude.toFixed(4)} | Network: ${getNetworkSpeed()}`;
+        }, () => {
+          document.getElementById('info').textContent = 'Unable to retrieve location.';
+        });
+      } else {
+        document.getElementById('info').textContent = 'Geolocation not supported.';
+      }
+    }
+
+    // Network Information API
+    function getNetworkSpeed() {
+      if ('connection' in navigator) {
+        return navigator.connection.effectiveType;
+      }
+      return '4g'; // Default
+    }
+
+    // Initialize
+    const speed = getNetworkSpeed();
+    getLocation();
+    drawParkingLayout(speed);
+  </script>
+</body>
+</html>
